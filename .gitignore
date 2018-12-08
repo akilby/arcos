@@ -106,3 +106,8 @@ venv.bak/
 # arcos configuration file
 arcos_configure.txt
 
+#.DS_store
+.DS_Store
+
+
+
