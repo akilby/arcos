@@ -64,7 +64,7 @@ def main():
 
 def ensure_source_files(folder, base_url, depth, url_list_path):
     if url_list_path:
-        urllist = list_from_csv(url_list_path)
+        urllist = flat_list_from_csv(url_list_path)
         print('%s URLs for download retrieved from %s'
               % (len(urllist), url_list_path))
     else:
@@ -78,7 +78,7 @@ def pdf_links_from_web_tree(url, depth=2):
     return [x for x in url_tree(url, depth=depth) if is_pdf(x)]
 
 
-def list_from_csv(csv_filepath):
+def flat_list_from_csv(csv_filepath):
     with open(csv_filepath, 'r', newline='') as f:
         reader = csv.reader(f)
         csvlist = list(reader)
