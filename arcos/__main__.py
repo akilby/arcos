@@ -12,7 +12,6 @@ class CommandLine(object):
             dest='subcommand', required=True,
             description='Subcommands required.')
 
-        self.setup_configure_parser(subparsers)
         self.setup_download_parser(subparsers)
         self.setup_build_parser(subparsers)
         self.parser = parser
@@ -20,10 +19,6 @@ class CommandLine(object):
     def main(self):
         args = self.parser.parse_args()
         args.func(args)
-
-    def setup_configure_parser(self, subparsers):
-        parser_configure = subparsers.add_parser('configure')
-        parser_configure.set_defaults(func=self.configure)
 
     def setup_download_parser(self, subparsers):
         parser_download = subparsers.add_parser('download')
@@ -57,11 +52,10 @@ class CommandLine(object):
         parser_build = subparsers.add_parser('build')
         parser_build.set_defaults(func=self.build)
 
-    def configure(self, args):
-        configure()
-
     def download(self, args):
-        download(folder=args.folder, overwrite=args.overwrite)
+        print(args)
+        download(folder=args.folder, overwrite=args.overwrite,
+                 base_url=args.base_url, use_crawl_list=args.use_crawl_list)
 
     def build(self, args):
         build(folder=args.folder)

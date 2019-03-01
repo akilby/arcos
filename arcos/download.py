@@ -44,33 +44,47 @@ def ensure_folder(folder):
         os.mkdir(folder)
 
 
-def download(list_of_urls, folder, overwrite=False):
+def download(folder, base_url='https://www.deadiversion.usdoj.gov/'
+             'arcos/retail_drug_summary/index.html',
+             overwrite=False, use_crawl_list=False):
+    ensure_folder(folder)
+    pass
+
+
+def overwrite_file():
+    pass
+
+
+def download_no_overwrite(list_of_urls, folder):
     ''' Downloads every link from a list of urls. If a file with the
     same basename already exists in the folder, it is skipped.'''
-
-    broken_links, already_downloaded = [], []
-    ensure_folder(folder)
+    broken_links = []
     for url in sorted(list_of_urls):
-        base = os.path.basename(url)
-        save_path = os.path.join(folder, base)
-        if os.path.isfile(save_path):
-            already_downloaded.append(url)
-            print('Target file already exists: %s' % save_path)
-        else:
-            print('Downloading: %s' % url)
-            r = requests.get(url)
-            if r.status_code == 404:
+        save_path = os.path.join(folder, os.path.basename(url))
+        if not already_downloaded(save_path):
+            success = save_to_disk(url, save_path)
+            if not success:
                 broken_links.append(url)
-            else:
-                with open(save_path, 'wb') as f:
-                    f.write(r.content)
-    print('Unable to download from %s broken links: %s' %
-          (len(broken_links), broken_links))
-    return broken_links, already_downloaded
+    return broken_links
 
 
-def configure():
-    pass
+def already_downloaded(save_path):
+    if os.path.isfile(save_path):
+        print('Target file already exists: %s' % save_path)
+        return True
+    return False
+
+
+def save_to_disk(url, save_path):
+    print('Downloading: %s' % url)
+    r = requests.get(url)
+    if r.status_code == 404:
+        print('URL broken, unable to download: %s' % url)
+        return False
+    else:
+        with open(save_path, 'wb') as f:
+            f.write(r.content)
+        return True
 
 
 def build(folder):
@@ -84,9 +98,6 @@ def is_pdf(url):
 def download_folder(args):
     print("download: %s" % args.folder)
 
-
-def build(args):
-    print("build: %s" % 'success')
 
 
 if __name__ == '__main__':
