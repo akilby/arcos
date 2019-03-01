@@ -13,7 +13,7 @@ setup(name='arcos',
       zip_safe=False,
       entry_points={
         'console_scripts': [
-            'arcos = arcos.core:main',
+            'arcos = arcos.__main__:main',
         ],
       }
       )
@@ -22,3 +22,5 @@ setup(name='arcos',
 # VISION: two commands: "arcos download," "arcos build"
 
 # arcos download --folder /my/path/to/download
+# arcos build --folder /my/path/to/output
+# arcos configure
