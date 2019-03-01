@@ -17,10 +17,3 @@ setup(name='arcos',
         ],
       }
       )
-
-
-# VISION: two commands: "arcos download," "arcos build"
-
-# arcos download --folder /my/path/to/download
-# arcos build --folder /my/path/to/output
-# arcos configure
