@@ -29,7 +29,7 @@ def ensure_source_files(folder, base_url, depth, url_list_path):
 
 
 def pdf_links_from_web_tree(url, depth=2):
-    return [x for x in url_tree(url, depth=depth) if is_pdf(x)]
+    return [x for x in url_link_tree(url, depth=depth) if is_pdf(x)]
 
 
 def flat_list_from_csv(csv_filepath):

@@ -7,7 +7,7 @@ from urllib.parse import urljoin, urldefrag
 crawl_ext_blacklist = ['.pdf']
 
 
-def url_tree(url, depth=2):
+def url_link_tree(url, depth=2):
     urllist = [url]
     for n in range(depth):
         urllist = list(set(urllist + find_all_child_links(urllist)))
@@ -25,14 +25,13 @@ def find_all_child_links(urllist):
 
 def find_child_links(baseurl):
     page_links = return_page_links(baseurl)
-    child_links = [x for x in page_links
-                   if is_child(x, baseurl)]
+    child_links = [x for x in page_links if is_child(x, baseurl)]
     return child_links
 
 
 def return_page_links(baseurl):
     urllist = []
-    if not is_pdf(baseurl):
+    if is_valid_ext(baseurl):
         r = requests.get(baseurl)
         soup = BeautifulSoup(r.text, 'html.parser')
         for link in soup.find_all('a'):
