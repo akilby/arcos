@@ -10,8 +10,10 @@ setup(name='arcos',
       author_email='a.kilby@northeastern.edu',
       license='MIT',
       packages=['arcos'],
-      install_requires=['setuptools', 'beautifulsoup4', 'requests'],
+      install_requires=['setuptools', 'beautifulsoup4',
+                        'requests', 'pdfminer.six'],
       zip_safe=False,
+      include_package_data=True,
       entry_points={
         'console_scripts': [
             'arcos = arcos.__main__:main',
