@@ -18,9 +18,9 @@ from pdfminer.layout import LAParams
 from pdfminer.converter import PDFPageAggregator
 
 from .data.data import (list_of_titles, totallist, statelist, quarterlist,
-                       businessactivities, geounitlist, column_titles,
-                       headervar_mapping, statetotallist,
-                       zip3_state_crosswalk_file)
+                        businessactivities, geounitlist, column_titles,
+                        headervar_mapping, statetotallist,
+                        zip3_state_crosswalk_file)
 
 
 def build(source_folder, destination_folder):
