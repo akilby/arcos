@@ -1,104 +1,40 @@
-import os
-import csv
-import itertools
 import requests
+import os
+
+from .files import prepare_folder, finalize_download_list
 
 
-def main():
-    pass
-    # if args.subcommand == 'download':
-    #     ensure_source_files(args.folder,
-    #                         args.base_url,
-    #                         args.depth,
-    #                         args.url_list_path)
+def download(folder, overwrite=False,
+             base_url='https://www.deadiversion.usdoj.gov/'
+                      'arcos/retail_drug_summary/index.html',
+             use_download_list=False):
+    ignore_list = prepare_folder(folder, overwrite)
+    download_list = finalize_download_list(base_url,
+                                           use_download_list, ignore_list)
+    broken_links = download_to_folder(download_list, folder)
+    print('%s links failed to download' % len(broken_links))
+    if len(broken_links) > 0:
+        print(broken_links)
 
 
-# MY_FOO_FILE = os.path.join(os.path.dirname(__file__), 'foo/bar/file.txt')
-
-
-def ensure_source_files(folder, base_url, depth, url_list_path):
-    if url_list_path:
-        urllist = flat_list_from_csv(url_list_path)
-        print('%s URLs for download retrieved from %s'
-              % (len(urllist), url_list_path))
-    else:
-        urllist = pdf_links_from_web_tree(base_url, depth=depth)
-        print('%s URLs for download retrieved from %s'
-              % (len(urllist), base_url))
-    broken_links, already_downloaded = download_urllist(urllist, folder)
-
-
-def pdf_links_from_web_tree(url, depth=2):
-    return [x for x in url_link_tree(url, depth=depth) if is_pdf(x)]
-
-
-def flat_list_from_csv(csv_filepath):
-    with open(csv_filepath, 'r', newline='') as f:
-        reader = csv.reader(f)
-        csvlist = list(reader)
-    return list(itertools.chain.from_iterable(csvlist))
-
-
-def ensure_folder(folder):
-    if os.path.isdir(folder) is False:
-        os.mkdir(folder)
-
-
-def download(folder, base_url='https://www.deadiversion.usdoj.gov/'
-             'arcos/retail_drug_summary/index.html',
-             overwrite=False, use_crawl_list=False):
-    ensure_folder(folder)
-    pass
-
-
-def overwrite_file():
-    pass
-
-
-def download_no_overwrite(list_of_urls, folder):
-    ''' Downloads every link from a list of urls. If a file with the
-    same basename already exists in the folder, it is skipped.'''
+def download_to_folder(download_list, folder):
     broken_links = []
-    for url in sorted(list_of_urls):
+    for url in sorted(download_list):
         save_path = os.path.join(folder, os.path.basename(url))
-        if not already_downloaded(save_path):
-            success = save_to_disk(url, save_path)
-            if not success:
-                broken_links.append(url)
+        success = save_to_disk(url, save_path)
+        if not success:
+            broken_links.append(url)
     return broken_links
 
 
-def already_downloaded(save_path):
-    if os.path.isfile(save_path):
-        print('Target file already exists: %s' % save_path)
-        return True
-    return False
-
-
 def save_to_disk(url, save_path):
+    """Saves to disk non-destructively (xb option will not overwrite)"""
     print('Downloading: %s' % url)
     r = requests.get(url)
     if r.status_code == 404:
         print('URL broken, unable to download: %s' % url)
         return False
     else:
-        with open(save_path, 'wb') as f:
+        with open(save_path, 'xb') as f:
             f.write(r.content)
-        return True
-
-
-def build(folder):
-    pass
-
-
-def is_pdf(url):
-    return url.endswith('.pdf')
-
-
-def download_folder(args):
-    print("download: %s" % args.folder)
-
-
-
-if __name__ == '__main__':
-    main()
+    return True

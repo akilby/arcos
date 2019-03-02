@@ -1,5 +1,8 @@
 import argparse
-from .core import configure, download, build
+import os
+
+from .download import download
+# from .build import build
 
 
 class CommandLine(object):
@@ -42,7 +45,9 @@ class CommandLine(object):
                  'https://www.deadiversion.usdoj.govarcos/retail_drug_summary/'
                  'index.html)')
         parser_download_group.add_argument(
-            '--use-crawl-list', action='store_true',
+            '--use-download-list', nargs='?',
+            const=os.path.join(os.path.dirname(__file__),
+                               'config/download_list.txt'),
             help="If for some reason crawling the DEA website doesn't work, or"
                  'you want to specify a specific list of URLs for the program'
                  'to download, you can override crawling for links with'
@@ -53,9 +58,8 @@ class CommandLine(object):
         parser_build.set_defaults(func=self.build)
 
     def download(self, args):
-        print(args)
         download(folder=args.folder, overwrite=args.overwrite,
-                 base_url=args.base_url, use_crawl_list=args.use_crawl_list)
+                 base_url=args.base_url, use_download_list=args.use_download_list)
 
     def build(self, args):
         build(folder=args.folder)

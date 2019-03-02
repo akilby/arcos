@@ -1,6 +1,7 @@
 from setuptools import setup
 
 setup(name='arcos',
+      python_requires='>=3.3',
       version='0.1',
       description='Code to process publicly-available'
                   'DEA ARCOS Retail Drug Summary Reports',
