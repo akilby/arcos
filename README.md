@@ -12,7 +12,7 @@ Code to process the DEA's publicly-available ARCOS Retail Drug Summary Reports
 * This package comes with command line tools that can be used to download PDFs and construct the datasets from source.
 
 `arcos download --folder /path/to/download/folder/` 
-`arcos build --source-folder /path/to/download/folder/` --data-folder /path/to/data/folder
+`arcos build --source-folder /path/to/download/folder/ --data-folder /path/to/data/folder`
 
 The first command will download all ARCOS reports publicly available on the DEA website (approximately 70 PDFs).
 
