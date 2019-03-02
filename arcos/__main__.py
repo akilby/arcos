@@ -39,18 +39,18 @@ class CommandLine(object):
             '--base-url',
             default='https://www.deadiversion.usdoj.gov/arcos/'
                     'retail_drug_summary/index.html',
-            help='Specify here the root url for the website where the DEA'
-                 'stores the ARCOS PDFs. By default this program will crawl'
-                 'down to a depth of 2 to find all PDFs. (default:'
+            help='Specify here the root url for the website where the DEA '
+                 'stores the ARCOS PDFs. By default this program will crawl '
+                 'down to a depth of 2 to find all PDFs. (default: '
                  'https://www.deadiversion.usdoj.govarcos/retail_drug_summary/'
                  'index.html)')
         parser_download_group.add_argument(
             '--use-download-list', nargs='?',
             const=os.path.join(os.path.dirname(__file__),
                                'config/download_list.txt'),
-            help="If for some reason crawling the DEA website doesn't work, or"
-                 'you want to specify a specific list of URLs for the program'
-                 'to download, you can override crawling for links with'
+            help="If for some reason crawling the DEA website doesn't work, or "
+                 'you want to specify a specific list of URLs for the program '
+                 'to download, you can override crawling for links with '
                  'config/download_list.')
 
     def setup_build_parser(self, subparsers):

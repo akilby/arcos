@@ -8,6 +8,11 @@ def download(folder, overwrite=False,
              base_url='https://www.deadiversion.usdoj.gov/'
                       'arcos/retail_drug_summary/index.html',
              use_download_list=False):
+    """
+    Downloads ARCOS files to folder. If use_download_list is
+    specified, it simply downloads that list. If it is not (the
+    default), base_url is crawled down to depth 2 for PDF links.
+    """
     ignore_list = prepare_folder(folder, overwrite)
     download_list = finalize_download_list(base_url,
                                            use_download_list, ignore_list)
