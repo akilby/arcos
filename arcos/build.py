@@ -26,7 +26,8 @@ def build(source_folder, destination_folder):
     report_final_dict, drugset = save_to_disk(Reports_dict, destination_folder)
 
 
-def GenerateReports(yearlist=None, reportlist=None, globpath=None):
+def GenerateReports(yearlist=None, reportlist=None,
+                    source_folder=None, globpath=None):
     """
     Processes multiple PDFs, either via a passed year/report list,
     or via a globpath. Concatenates multiple years according to
@@ -42,7 +43,8 @@ def GenerateReports(yearlist=None, reportlist=None, globpath=None):
         for year in yearlist:
             for report in reportlist:
                 print('RUNNING YEAR %s and REPORT %s' % (year, report))
-                Report_dict, Report_df, Report = GenerateReport(year, report)
+                Report_dict, Report_df, Report = GenerateReport(year, report,
+                                                                source_folder)
                 Reports_dict = update_Reports_dict(Report_dict, Reports_dict)
     if globpath:
         list_of_files = glob.glob(globpath)
@@ -70,9 +72,13 @@ def GenerateReport(year=None, report=None, source_folder=None,
         path = os.path.join(source_folder,
                             '%s%srpt%s.pdf' % (year, sep, report))
 
+    # Some reports have title pages, some do not. This appears to change
+    # every time the DEA uploads there data. Should automate a front-page
+    # check.
+
     basep = os.path.splitext(os.path.basename(path))[0]
     [year_of_report] = [str(x) for x in range(2000, 2018) if str(x) in basep]
-    if year_of_report in ['2016', '2017']:
+    if year_of_report in ['2013', '2016', '2017'] or basep == '2012_rpt2':
         start_page = 1
 
     Report = ARCOSReport(path, start_page, end_page)
