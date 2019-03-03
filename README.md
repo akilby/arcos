@@ -19,4 +19,4 @@ The first command will download all ARCOS reports publicly available on the DEA 
 
 The second command will process and build clean data files from the PDFs. The final output will be 6 data files, one for each report type. The files are saved in .dta for portability to Stata; they can also be read with pandas read_stata().
 
-Note that while package can handle processing only a subset of the data/reports, currently using the command line the best way to build only a subset of years or reports is to create a source folder containing only the relevant PDFs.
+Note that while package can handle processing only a subset of the data/reports, currently if using the command line tools the best way to build only a subset of years or reports is to create a source folder containing only the relevant PDFs.
