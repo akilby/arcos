@@ -12,8 +12,7 @@ class CommandLine(object):
         parser = argparse.ArgumentParser(
             description='Downloads and builds DEA ARCOS data')
         subparsers = parser.add_subparsers(
-            dest='subcommand', required=True,
-            description='Subcommands required.')
+            dest='subcommand', description='Subcommands required.')
 
         self.setup_download_parser(subparsers)
         self.setup_build_parser(subparsers)

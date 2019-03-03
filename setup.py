@@ -11,7 +11,7 @@ setup(name='arcos',
       license='MIT',
       packages=['arcos'],
       install_requires=['setuptools', 'beautifulsoup4',
-                        'requests', 'pdfminer.six'],
+                        'requests', 'pdfminer.six', 'pandas'],
       zip_safe=False,
       include_package_data=True,
       entry_points={
