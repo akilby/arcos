@@ -2,7 +2,7 @@ import argparse
 import os
 
 from .download import download
-# from .build import build
+from .build import build
 
 
 class CommandLine(object):
@@ -56,13 +56,22 @@ class CommandLine(object):
     def setup_build_parser(self, subparsers):
         parser_build = subparsers.add_parser('build')
         parser_build.set_defaults(func=self.build)
+        parser_build.add_argument(
+            '--source-folder', required=True,
+            help='Folder in which ARCOS PDFs were stored (required)')
+        parser_build.add_argument(
+            '--destination-folder', required=True,
+            help='Folder in which ARCOS data files will be stored (required)')
 
     def download(self, args):
-        download(folder=args.folder, overwrite=args.overwrite,
-                 base_url=args.base_url, use_download_list=args.use_download_list)
+        download(folder=args.folder,
+                 overwrite=args.overwrite,
+                 base_url=args.base_url,
+                 use_download_list=args.use_download_list)
 
     def build(self, args):
-        build(folder=args.folder)
+        build(source_folder=args.source_folder,
+              destination_folder=args.destination_folder)
 
 
 def main():
