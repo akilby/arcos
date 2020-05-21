@@ -1,23 +1,20 @@
 import glob
-import sys
 import os
+import sys
+
 import pandas as pd
-
-from pdfminer.pdfparser import PDFParser
-from pdfminer.pdfdocument import PDFDocument
-from pdfminer.pdfpage import PDFPage
-from pdfminer.pdfpage import PDFTextExtractionNotAllowed
-from pdfminer.pdfinterp import PDFResourceManager
-from pdfminer.pdfinterp import PDFPageInterpreter
-from pdfminer.pdfdevice import PDFDevice
-from pdfminer.layout import LAParams
+from arcos.pdfprocess import (initialize_header_dict,
+                              layout_to_coordinates_dict, make_row,
+                              process_row, rowdict_hand_fixes)
+from arcos.postprocess import (save_to_disk, subset_to_useful_columns,
+                               update_Reports_dict)
 from pdfminer.converter import PDFPageAggregator
-
-from .pdfprocess import (initialize_header_dict, layout_to_coordinates_dict,
-                         make_row, process_row)
-
-from .postprocess import (save_to_disk, subset_to_useful_columns,
-                          update_Reports_dict)
+from pdfminer.layout import LAParams
+from pdfminer.pdfdevice import PDFDevice
+from pdfminer.pdfdocument import PDFDocument
+from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
+from pdfminer.pdfpage import PDFPage, PDFTextExtractionNotAllowed
+from pdfminer.pdfparser import PDFParser
 
 
 def build(source_folder, destination_folder):
@@ -73,16 +70,23 @@ def GenerateReport(year=None, report=None, source_folder=None,
                             '%s%srpt%s.pdf' % (year, sep, report))
 
     # Some reports have title pages, some do not. This appears to change
-    # every time the DEA uploads there data. Should automate a front-page
+    # every time the DEA uploads their data. Should automate a front-page
     # check.
 
     basep = os.path.splitext(os.path.basename(path))[0]
-    [year_of_report] = [str(x) for x in range(2000, 2018) if str(x) in basep]
+    [year_of_report] = [str(x) for x in range(2000, 2025) if str(x) in basep]
     if year_of_report in ['2013', '2016', '2017'] or basep == '2012_rpt2':
         start_page = 1
 
     Report = ARCOSReport(path, start_page, end_page)
     Report_df = Report.process_all_layouts()
+
+    # Fix geo_units for 2018 and 2019
+    if year_of_report in ['2018', '2019']:
+        Report_df.loc[Report_df.GEO_UNIT == "REGISTRANT ZIP CODE 3",
+                      'GEO_UNIT'] = 'ZIP CODE'
+        Report_df.loc[Report_df.GEO_UNIT == "STATE NAME",
+                      'GEO_UNIT'] = 'STATE'
     Report_dict = {}
     for reportno in set(Report_df['REPORT'].tolist()):
         rdf = Report_df.loc[Report_df['REPORT'] == reportno]
@@ -148,18 +152,21 @@ class ARCOSReport(object):
         print('TOTAL LAYOUTS TO PROCESS: %s' % len(layouts_list))
 
         layout_num = 0
+        partial2019 = False
+
         for layout in layouts_list:
             layout_num += 1
-            print(layout_num, end=' ')
-            (skip_next_row, header_line,
+            print('LAYOUT: ', layout_num)
+            (skip_next_row, partial2019, header_line,
              header_dict, df) = self.process_layout(layout,
                                                     skip_next_row,
+                                                    partial2019,
                                                     header_line,
                                                     header_dict,
                                                     df)
         return df
 
-    def process_layout(self, layout, skip_next_row,
+    def process_layout(self, layout, skip_next_row, partial2019,
                        header_line, header_dict, df):
         """
         Layout processing happens by first translating all text on each page
@@ -167,11 +174,20 @@ class ARCOSReport(object):
         bad information from the PDF encoding, which is mostly wrong.
         """
         rowdict = layout_to_coordinates_dict(layout)
+        rowdict = rowdict_hand_fixes(rowdict)
         keys_sorted = sorted([x for x in rowdict.keys()], key=lambda x: -x[0])
+        rowdict = {key: rowdict[key] for key in keys_sorted}
         for rowkey in keys_sorted:
             row = make_row(rowkey, rowdict)
 
-            if set(header_dict['REPORT']).issubset(['1', '2', '3']):
+            if row == ['ZIP CODE', 'QUARTER 1', 'QUARTER 2', 'TOTAL GRAMS']:
+                partial2019 = True
+                header_line = ['GEO', 'Q1', 'Q2', 'TOTAL']
+
+            if (
+               set(header_dict['REPORT']).issubset(['1', '2', '3'])
+               and not partial2019
+               ):
                 header_line = ['GEO', 'Q1', 'Q2', 'Q3', 'Q4', 'TOTAL']
 
             if skip_next_row > 0:
@@ -188,4 +204,4 @@ class ARCOSReport(object):
                 header_dict, header_line, skip_next_row, df = process_row(
                     rowkey, row, header_dict, header_line,
                     keys_sorted, rowdict, skip_next_row, df)
-        return skip_next_row, header_line, header_dict, df
+        return skip_next_row, partial2019, header_line, header_dict, df

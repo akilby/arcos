@@ -7,6 +7,8 @@ Code to process the DEA's publicly-available ARCOS Retail Drug Summary Reports
 
 `pip install .`
 
+NOTE: currently this only works if you `pip install -e .` (otherwise submodules don't work)	
+
 ## Command Line Tools ##
 
 * This package comes with command line tools that can be used to download PDFs and construct the datasets from source.
