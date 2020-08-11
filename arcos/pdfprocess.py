@@ -171,6 +171,10 @@ def check_dangling_from_previous_line(keys_sorted, header_dict, header_line,
     Checks if row is dangling from previous line. Probably only necessary for
     a GEO_UNIT type line in 2018 and 2019
     """
+    mask = (header_dict['REPORT_PD'] == ['01/01/2019 TO 12/31/2019']
+            or header_dict['REPORT_PD'] == ['01/01/2018 TO 12/31/2018'])
+    if not mask:
+        return False
     rowl = []
     key_prev = keys_sorted[keys_sorted.index(rowkey) - 1]
     for c in sorted([x for x in rowdict[key_prev].keys()], key=lambda x: x[0]):
@@ -179,9 +183,7 @@ def check_dangling_from_previous_line(keys_sorted, header_dict, header_line,
     t2, val2 = categorize_lines(rowl, header_dict['REPORT'], header_line)
     mask1 = (t1 == assert_type) if assert_type else True
     mask2 = (t1, val1) == (t2, val2)
-    mask3 = (header_dict['REPORT_PD'] == ['01/01/2019 TO 12/31/2019']
-             or header_dict['REPORT_PD'] == ['01/01/2018 TO 12/31/2018'])
-    return mask1 & mask2 & mask3
+    return mask1 & mask2 & mask
 
 
 def check_2018_missing_types(vala, valb):
@@ -241,11 +243,13 @@ def post_categorize_hand_fix(val, skip_next_row):
         print('need to skip next row')
     if (val == ['2100', 'BARBITURIC ACID DERIVIATIVE OR SALT [PER  21CFR'] or
        val == ['2100', 'BARBITURIC ACID DERIVIATIVE OR SALT [PER 21CFR']):
-        val = ['2100', 'BARBITURIC ACID DERIVIATIVE OR SALT [PER  21CFR 1308.13(C)(3)]']
+        val = ['2100', 'BARBITURIC ACID DERIVIATIVE OR SALT [PER  21CFR'
+                       ' 1308.13(C)(3)]']
         skip_next_row = 1
         print('need to skip next row')
     if val == ['7365', 'DRONABINOL IN AN ORAL SOLUTION IN FDA APPROVED']:
-        val = ['7365', 'DRONABINOL IN AN ORAL SOLUTION IN FDA APPROVED DRUG PRODUCT (SYNDROS - CII)']
+        val = ['7365', 'DRONABINOL IN AN ORAL SOLUTION IN FDA APPROVED DRUG '
+                       'PRODUCT (SYNDROS - CII)']
         skip_next_row = 1
         print('need to skip next row')
     return val, skip_next_row
@@ -603,6 +607,22 @@ def rowdict_hand_fixes(rowdict):
                                        (533, 591): 'TOTAL GRAMS',
                                        (657, 706): 'AVG GRAMS'}
                 del rowdict[(139, 152)]
+    if ((282, 296) in rowdict.keys() and (267, 281) in rowdict.keys()):
+        if (
+            rowdict[(282, 296)] ==
+            {(20, 321): 'DRONABINOL IN AN ORAL SOLUTION IN FDA APPROVED  DRUG'}
+            and rowdict[(267, 281)] ==
+            {(20, 152): 'PRODUCT (SYNDROS -       CII)'}
+           ):
+            rowdict[(266, 280)] = {(20, 321): 'DRONABINOL IN AN ORAL SOLUTION '
+                                              'IN FDA APPROVED DRUG PRODUCT '
+                                              '(SYNDROS - CII)',
+                                   (391, 414): '7365',
+                                   (594, 606): '13',
+                                   (663, 682): '5.25',
+                                   (740, 754): '0.4'}
+            del rowdict[(282, 296)]
+            del rowdict[(267, 281)]
     return rowdict
 
 

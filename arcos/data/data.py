@@ -4,28 +4,28 @@ import pandas as pd
 from utility_data.crosswalks import state_identifiers
 
 list_of_titles = ['RETAIL DRUG DISTRIBUTION BY ZIP CODE FOR EACH STATE',
-                  'RETAIL DRUG DISTRIBUTION BY ZIP CODE WITHIN STATE',
                   'RETAIL DRUG DISTRIBUTION BY ZIP CODE WITHIN STATE BY GRAMS WT',
                   'RETAIL DRUG DISTRIBUTION BY ZIP CODE WITHIN STATE BY GRAMS WEIGHT',
+                  'RETAIL DRUG DISTRIBUTION BY ZIP CODE WITHIN STATE',
                   'RETAIL DRUG DISTRIBUTION BY DRUG CODE - TOTAL U.S. (IN GRAMS)',
-                  'RETAIL DRUG DISTRIBUTION BY STATE WITHIN DRUG CODE',
                   'RETAIL DRUG DISTRIBUTION BY STATE WITHIN DRUG CODE BY GRAMS WT',
                   'RETAIL DRUG DISTRIBUTION BY STATE WITHIN DRUG CODE BY GRAMS WEIGHT',
+                  'RETAIL DRUG DISTRIBUTION BY STATE WITHIN DRUG CODE',
                   'RETAIL DRUG DISTRIBUTION BY DRUG CODE – TOTAL U.S. (IN GRAMS)',
-                  'QUARTERLY DRUG DISTRIBUTION BY STATE PER 100K POPULATION',
                   'QUARTERLY DRUG DISTRIBUTION BY STATE PER 100K POPULATION BY GRAM WT',
                   'QUARTERLY DRUG DISTRIBUTION BY STATE PER 100,000 POPULATION BY GRAMS WEIGHT',
                   'QUARTERLY DRUG DISTRIBUTION BY STATE / 100K POPULATION BY MILIGRAM WT',
+                  'QUARTERLY DRUG DISTRIBUTION BY STATE PER 100K POPULATION',
+                  'QUARTERLY DISTRIBUTION IN GRAMS PER 100,000 POPULATION',
                   'CUMULATIVE DISTRIBUTION BY STATE PER 100K POPULATION',
                   'CUMULATIVE DISTRIBUTION BY STATE IN GRAMS PER 100,000 POPULATION',
                   'CUMULATIVE DISTRIBUTION IN GRAMS PER 100,000 POPULATION',
-                  'QUARTERLY DISTRIBUTION IN GRAMS PER 100,000 POPULATION',
                   'STATISTICAL SUMMARY FOR RETAIL DRUG PURCHASES BY GRAMS WT',
                   'STATISTICAL SUMMARY FOR RETAIL DRUG PURCHASES BY GRAMS WEIGHT',
                   'STATISTICAL SUMMARY FOR RETAIL DRUG PURCHASES',
-                  'UNITED STATES SUMMARY FOR RETAIL DRUG PURCHASES',
                   'UNITED STATES SUMMARY FOR RETAIL DRUG PURCHASES BY GRAMS WT',
                   'UNITED STATES SUMMARY FOR RETAIL DRUG PURCHASES BY GRAMS WEIGHT',
+                  'UNITED STATES SUMMARY FOR RETAIL DRUG PURCHASES',
                   'U.S. SUMMARY OF RETAIL DRUG PURCHASES']
 
 totallist = ['UNITED STATES TOTAL',
@@ -94,6 +94,58 @@ headervar_mapping = {'ARCOS 3 - REPORT': 'REPORT',
                      'STATE:': 'STATE',
                      'BUSINESS ACTIVITY:': 'BUSINESS ACTIVITY',
                      'PAGE:': 'PAGE'}
+
+col_rename_dict = {'NUMBER OF REGISTRANT SOLD TO': 'BUYERS',
+                   'TOTAL GRAMS/100K POPULATION': 'GRAMS/100K POP',
+                   'STATE POPULATION': '2010 POP', 'STATE NAME': 'STATE'}
+
+american_territories = ['GUAM', 'VIRGIN ISLANDS',
+                        'AMERICAN SAMOA', 'PUERTO RICO']
+
+report_sortvars = {'1': ['STATE', 'ZIP3', 'DRUG_CODE', 'DRUG_NAME', 'YEAR',
+                         'QUARTER'],
+                   '2': ['STATE', 'DRUG_CODE', 'DRUG_NAME', 'YEAR', 'QUARTER'],
+                   '3': ['STATE', 'DRUG_CODE', 'DRUG_NAME', 'YEAR', 'QUARTER'],
+                   '4': ['STATE', 'YEAR'],
+                   '5': ['STATE', 'BUSINESS_ACTIVITY',
+                         'DRUG_CODE', 'DRUG_NAME', 'YEAR'],
+                   '7': ['BUSINESS_ACTIVITY', 'DRUG_CODE', 'DRUG_NAME',
+                         'YEAR'],
+                   }
+
+grams_name_dict = {'1': 'GRAMS', '2': 'GRAMS', '3': 'GRAMS_PC',
+                   '5': 'TOTAL_GRAMS', '7': 'TOTAL_GRAMS'}
+
+mme = {'BUPRENORPHINE': 40,
+       'BUTORPHANOL': 7,
+       'CODEINE': .1,
+       'DIHYDROCODEINE':  .2,
+       'FENTANYL':  75,
+       'FENTANYL BASE': 75,
+       'HYDROCODONE': 1,
+       'HYDROMORPHONE': 4,
+       'LEVORPHANOL': 8,
+       'MEPERIDINE':  .3333333,
+       'MEPERIDINE (PETHIDINE)':  .3333333,
+       'METHADONE': 8,
+       'MORPHINE':  1,
+       'NALBUPHINE':  1,
+       'OPIUM': 1,
+       'OPIUM POWDERED':  .1,
+       'OXYCODONE': 1.5,
+       'OXYMORPHONE': 7,
+       'PENTAZOCINE': 1,
+       'PROPOXYPHENE':  .0634615,
+       'SUFENTANIL':  750,
+       'TAPENTADOL':  .1,
+       'TRAMADOL':  .1}
+
+mat = ['BUPRENORPHINE', 'METHADONE']
+opioids_main = ['CODEINE', 'FENTANYL BASE',
+                'HYDROCODONE', 'OXYCODONE',
+                'MEPERIDINE (PETHIDINE)',
+                'HYDROMORPHONE', 'MORPHINE']
+
 
 zip3_state_crosswalk_file = os.path.join(os.path.dirname(__file__),
                                          'zip3<->state.dta')

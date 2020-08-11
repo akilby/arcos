@@ -1,13 +1,15 @@
 import glob
+import itertools
 import os
+import pickle
 import sys
 
 import pandas as pd
+from arcos.data.data import col_rename_dict
 from arcos.pdfprocess import (initialize_header_dict,
                               layout_to_coordinates_dict, make_row,
                               process_row, rowdict_hand_fixes)
-from arcos.postprocess import (save_to_disk, subset_to_useful_columns,
-                               update_Reports_dict)
+from arcos.postprocess import final_clean
 from pdfminer.converter import PDFPageAggregator
 from pdfminer.layout import LAParams
 from pdfminer.pdfdevice import PDFDevice
@@ -20,7 +22,10 @@ from pdfminer.pdfparser import PDFParser
 def build(source_folder, destination_folder):
     globpath = os.path.join(source_folder, '*.pdf')
     Reports_dict = GenerateReports(globpath=globpath)
-    report_final_dict, drugset = save_to_disk(Reports_dict, destination_folder)
+    pickle_dump(Reports_dict,
+                os.path.join(source_folder, 'CACHES', 'intermed.pkl'))
+    report_final_dict = final_clean(Reports_dict, destination_folder)
+    return report_final_dict
 
 
 def GenerateReports(yearlist=None, reportlist=None,
@@ -91,9 +96,11 @@ def GenerateReport(year=None, report=None, source_folder=None,
     for reportno in set(Report_df['REPORT'].tolist()):
         rdf = Report_df.loc[Report_df['REPORT'] == reportno]
         rdf = subset_to_useful_columns(rdf)
+        rdf = rdf.rename(columns=col_rename_dict)
         rdf['YEAR'] = year_of_report
         Report_dict[reportno] = rdf
 
+    # renames here
     return Report_dict, Report_df, Report
 
 
@@ -177,6 +184,8 @@ class ARCOSReport(object):
         rowdict = rowdict_hand_fixes(rowdict)
         keys_sorted = sorted([x for x in rowdict.keys()], key=lambda x: -x[0])
         rowdict = {key: rowdict[key] for key in keys_sorted}
+        keys_sorted, rowdict = fix_2019_unaligned_rows_report_5_and_7(
+            rowdict, header_dict)
         for rowkey in keys_sorted:
             row = make_row(rowkey, rowdict)
 
@@ -195,13 +204,77 @@ class ARCOSReport(object):
                 print('skipping:',
                       rowkey, row)
                 skip_next_row = skip_next_row - 1
-            elif (header_dict['REPORT'] == ['7'] and
-                  header_dict['RUN_DATE'] == ['07/05/2018'] and
-                  header_dict['REPORT_PD'] == ['01/01/2017 TO 12/31/2017']):
-                print('Warning: Report 7 for year 2017 is not working after '
-                      '2017 pdf update. Skipping for now.')
+            # elif (header_dict['REPORT'] == ['7'] and
+            #       header_dict['RUN_DATE'] == ['07/05/2018'] and
+            #       header_dict['REPORT_PD'] == ['01/01/2017 TO 12/31/2017']):
+            #     print('Warning: Report 7 for year 2017 is not working after '
+            #           '2017 pdf update. Skipping for now.')
             else:
                 header_dict, header_line, skip_next_row, df = process_row(
                     rowkey, row, header_dict, header_line,
                     keys_sorted, rowdict, skip_next_row, df)
         return skip_next_row, partial2019, header_line, header_dict, df
+
+
+def fix_2019_unaligned_rows_report_5_and_7(r, header_dict):
+    """
+    Could potentially be expanded but only tested on report 5 2019
+    """
+    if (((header_dict['REPORT'] == ['4']
+        and ('ARCOS 3 - REPORT 05' in ' '.join(
+               list(itertools.chain.from_iterable(
+                   [list(x.values()) for x in r.values()])))))
+       or header_dict['REPORT'] == ['5'] or header_dict['REPORT'] == ['7'])
+       and '2019' in header_dict['REPORT_PD'][0]):
+
+        rowdict = r.copy()
+        replace_pairs = [(x, y) for x in rowdict.keys()
+                         for y in rowdict.keys()
+                         if x != y
+                         and abs(x[0]-y[0]) <= 1
+                         and abs(x[1]-y[1]) <= 1
+                         and all([abs(x1[0]-y1[0]) >= 5
+                                  and abs(x1[1]-y1[1]) >= 5
+                                  for x1 in rowdict[x].keys()
+                                  for y1 in rowdict[y].keys()])]
+        replace_pairs = set([tuple(sorted(x)) for x in replace_pairs])
+        for pair in replace_pairs:
+            rowdict[pair[0]] = {**rowdict[pair[0]], **rowdict[pair[1]]}
+            del rowdict[pair[1]]
+        keys_sorted = sorted([x for x in rowdict.keys()], key=lambda x: -x[0])
+        return keys_sorted, rowdict
+    keys_sorted = sorted([x for x in r.keys()], key=lambda x: -x[0])
+    return keys_sorted, r
+
+
+def subset_to_useful_columns(df):
+    unique_cols = []
+    manyval_cols = []
+    empty_cols = []
+    for col in list(df.columns):
+        if set(df[col].tolist()) == {''}:
+                empty_cols.append(col)
+        elif len(set(df[col].tolist())) == 1:
+                unique_cols.append(col)
+        else:
+                manyval_cols.append(col)
+    return(df[manyval_cols])
+
+
+def update_Reports_dict(Report_dict, Reports_dict):
+    for key in Report_dict:
+        updated = pd.concat([Reports_dict[key], Report_dict[key]], sort=False)
+        updated = updated.reset_index(drop=True)
+        Reports_dict[key] = updated
+    return Reports_dict
+
+
+def pickle_read(readfile):
+    with open(readfile, 'rb') as picklefile:
+        thing = pickle.load(picklefile)
+    return thing
+
+
+def pickle_dump(thing, writefile):
+    with open(writefile, 'wb') as picklefile:
+        pickle.dump(thing, picklefile)

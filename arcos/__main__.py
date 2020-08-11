@@ -1,8 +1,8 @@
 import argparse
 import os
 
-from .download import download
 from .build import build
+from .download import download
 
 
 class CommandLine(object):
@@ -47,10 +47,10 @@ class CommandLine(object):
             '--use-download-list', nargs='?',
             const=os.path.join(os.path.dirname(__file__),
                                'config/download_list.txt'),
-            help="If for some reason crawling the DEA website doesn't work, or "
-                 'you want to specify a specific list of URLs for the program '
-                 'to download, you can override crawling for links with '
-                 'config/download_list.')
+            help="If for some reason crawling the DEA website doesn't work, "
+                 'or you want to specify a specific list of URLs for the '
+                 'program to download, you can override crawling for links '
+                 'with config/download_list.')
 
     def setup_build_parser(self, subparsers):
         parser_build = subparsers.add_parser('build')
