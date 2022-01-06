@@ -1,9 +1,7 @@
 """
 To do:
 
-1. It appears 2019 data sources produce the same end result, though the
-original PDF is much lighter weight. I am including it onboard the package
-Implement an option for using onboad 2019 PDF if downloaded file is very large
+1. Allow for half years - right now just skips the entire report
 
 2. Check for unused code
 
