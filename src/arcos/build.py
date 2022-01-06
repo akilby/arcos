@@ -437,6 +437,7 @@ def check_2019_list(list_of_files, source_folder):
             list_of_files = [x if '2019' not in x else path_2019_onboard
                              for x in list_of_files]
         return list_of_files
+    return list_of_files
 
 
 def check_with_user_about_2019(source_folder):

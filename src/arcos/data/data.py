@@ -1,7 +1,8 @@
 import os
 
 import pandas as pd
-from utility_data.crosswalks import state_identifiers
+
+from .. import data_dir
 
 list_of_titles = ['RETAIL DRUG DISTRIBUTION BY ZIP CODE FOR EACH STATE',
                   'RETAIL DRUG DISTRIBUTION BY ZIP CODE WITHIN STATE BY GRAMS WT',
@@ -159,6 +160,18 @@ opioids_main = ['CODEINE', 'FENTANYL BASE',
 
 zip3_state_crosswalk_file = os.path.join(os.path.dirname(__file__),
                                          'zip3<->state.dta')
+
+
+def state_identifiers(ids=['state',
+                           'state_fips',
+                           'stateabbrev',
+                           'statefipscode']):
+    df = (pd.read_stata(os.path.join(data_dir, 'state<->state_fips.dta'))
+            .merge(pd.read_stata(os.path.join(data_dir,
+                                              'state_fips_crosswalk.dta')),
+                   how='outer'))
+    df.loc[df.state == "PUERTO RICO", 'state_fips'] = "72"
+    return df[ids]
 
 
 def statedf():
