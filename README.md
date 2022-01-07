@@ -29,6 +29,10 @@ This package can take a while to run. If you only want a subset of ARCOS reports
 
 I use ARCOS data in the following papers, which also contain a more in-depth description of the data:
 
-* a
-* b
-* c
+* Kilby, Angela (2021). [*Opioids for the masses: Welfare Tradeoffs in the Regulation of Narcotic Pain Medications.*](https://angelakilby.com/pdfs/AKilbyWelfare_2022-01.pdf)
+* Guo, Jiapei, Angela Kilby, and Mindy Marks (2021). [*The Impact of Scope-of-Practice Restrictions on Access to Medical Care.*](https://angelakilby.com/pdfs/GuoKilbyMarksNursePractitioners_2022-01.pdf)
+* Kilby, Angela. *The Medicaid Expansion and Increased Access to Prescription Medications: Implications for the Opioid Overdose Crisis.*
+
+
+
+
