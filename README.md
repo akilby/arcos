@@ -1,5 +1,5 @@
 # arcos #
-Code to process the DEA's [publicly-available ARCOS Retail Drug Summary Reports](https://www.deadiversion.usdoj.gov/arcos/retail_drug_summary/index.html).
+Code to process the DEA's publicly-available [ARCOS Retail Drug Summary Reports](https://www.deadiversion.usdoj.gov/arcos/retail_drug_summary/index.html).
 
 ARCOS reports contain a census of all major controlled substances distributed in the United States every year, and are useful to researchers, but the data is housed in 1,000+ page PDF files with messy encoding that makes the data difficult to extract.
 
