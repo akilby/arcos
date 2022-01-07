@@ -178,6 +178,10 @@ def categorize_lines(line, report, header_line):
         elif (len(line) == 3 and line[0].isdigit()
               and line[2].isdigit() and line[1].lower() == 'of'):
             t, val = 'blank line', line
+        elif (len(line) == 4 and line[1].isdigit()
+              and line[3].isdigit() and line[2].lower() == 'of'
+              and line[0].lower() == 'page'):
+            t, val = 'blank line', line
         elif len(line) == 1 and line[0] in statelist:
             str_search = 'STATE: %s' % str_search
             if find_headvars(str_search):
@@ -235,6 +239,15 @@ def categorize_lines(line, report, header_line):
             t, val = 'blank line', line
         elif (len(line) == 3 and line[0].isdigit()
               and line[2].isdigit() and line[1].lower() == 'of'):
+            t, val = 'blank line', line
+        elif (len(line) == 4 and line[1].isdigit()
+              and line[3].isdigit() and line[2].lower() == 'of'
+              and line[0].lower() == 'page'):
+            t, val = 'blank line', line
+        elif (len(line) == 5 and line[2].isdigit()
+              and line[4].isdigit() and line[3].lower() == 'of'
+              and line[1].lower() == 'page'
+              and line[0] == ''):
             t, val = 'blank line', line
         elif (len(line) == 1 and len(line[0].split()) == 3):
             line = line[0].split()
@@ -306,6 +319,11 @@ def categorize_recent_reports(t, val, row, report, header_line, df_main):
                              .value_counts().index)
         drugtotallist2 = {' '.join(x.replace('-', '').split()): x
                           for x in drugtotallist}
+        if row == ['1724 - METHYLPHENIDATE (DL;D;L;ISOMER    4,175,861.02',
+                   '4,249,902.64', '0.00', '0.00', '8,425,763.66']:
+            row = ['1724 - METHYLPHENIDATE (DL;D;L;ISOMER', '4,175,861.02',
+                   '4,249,902.64', '0.00', '0.00', '8,425,763.66']
+
     if t == 'uncategorized' and (report == ['2'] or report == ['3']):
         if (len(row) == len(header_line)
            and all([is_num_not_nan(x) for x in row[1:]])

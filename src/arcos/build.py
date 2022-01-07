@@ -1,9 +1,7 @@
 """
 To do:
 
-1. Allow for half years - right now just skips the entire report
-
-2. Check for unused code
+1. Check for unused code
 
 
 """
@@ -367,10 +365,8 @@ class ARCOSReport(object):
                               .split('TO')[-1].strip(), "%m/%d/%Y"))
                 if report_end.month != 12 or report_end.day != 31:
                     print(
-                        f'Skipping due to partial year {self.year_of_report}')
-                    return (skip_next_row,
-                            f'OTHER YEAR PARTIAL-{self.year_of_report}',
-                            header_line, header_dict, df)
+                        f'Partial year {self.year_of_report}')
+                    partial2019 = f'OTHER YEAR PARTIAL-{self.year_of_report}'
             if row == ['ZIP CODE', 'QUARTER 1', 'QUARTER 2', 'TOTAL GRAMS']:
                 partial2019 = True
                 header_line = ['GEO', 'Q1', 'Q2', 'TOTAL']
@@ -392,6 +388,12 @@ class ARCOSReport(object):
 
 
 def subset_to_useful_columns(df):
+    """
+    There are columns for each column in every report, but each report only
+    needs a subset of those columns, so this drops empty columns
+
+    It also drops Q3 and Q4 in half-year data that has zeros for Q3 and Q4
+    """
     unique_cols = []
     manyval_cols = []
     empty_cols = []
@@ -454,16 +456,17 @@ def check_with_user_about_2019(source_folder):
 def user_input(s1, s2, ratio):
     result = input('There is something strange about the most recent '
                    'version of report_yr_2019.pdf, where the PDF is very large'
-                   ' and much larger than previous versions. \n The ratio '
+                   ' and much larger than previous versions. \nThe ratio '
                    f'in sizes of the downloaded version ({s1} MB) compared'
                    f' to the original published version ({s2} MB) '
-                   f'is {ratio}X. \n While nothing appears to have changed'
-                   ' in the underlying data, you might opt to use the '
+                   f'is {ratio}X. \nAs of 2022/01/06 nothing appears to have '
+                   'changed in the underlying data relative to the lightweight'
+                   ' (older) PDF, but you might opt to use the '
                    'newest version from the DEA to be safest. For speed, '
                    'the lighter-weight and older version of the 2019 file '
                    'is provided on-board, and you can use this instead.'
-                   '\n Newest version (safest option) - 1 '
-                   '\n Onboard version (fastest option) - 2 \n')
+                   '\n\tNewest version (safest option) - 1 '
+                   '\n\tOnboard version (fastest option) - 2 \n')
     if result == '1':
         return 'newest'
     elif result == '2':

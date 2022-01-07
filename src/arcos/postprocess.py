@@ -717,15 +717,16 @@ def fix_quarter_quantity_columns(df, reportno):
     and fixes weird change in 2011 that multiplied everything in
     R3 by 1000
     """
+    quarter_columns = [x for x in df.columns if len(x) == 2
+                       and x.startswith('Q') and int(x[1:]) in range(1, 5)]
+
     if reportno == '1' or reportno == '2' or reportno == '3':
 
-        df = df.assign(Q1=df.Q1.str.replace(',', '').astype(float),
-                       Q2=df.Q2.str.replace(',', '').astype(float),
-                       Q3=df.Q3.str.replace(',', '').astype(float),
-                       Q4=df.Q4.str.replace(',', '').astype(float))
+        df = df.assign(**{x: df[x].str.replace(',', '').astype(float)
+                          for x in quarter_columns})
 
     if reportno == '3':
-        for col in ['Q1', 'Q2', 'Q3', 'Q4']:
+        for col in quarter_columns:
             # rpt[col][rpt['YEAR'] == '2011'] = rpt[col] / 1000
             df[col] = df.apply(
                 lambda df: (df[col]/1000 if df['YEAR'] == '2011'
