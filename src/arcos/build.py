@@ -1,7 +1,8 @@
 """
 To do:
 
-1. Check for unused code
+1. Fix bug when running only 2006_rpt1
+2. Check for unused code
 
 
 """
@@ -37,6 +38,8 @@ def build(source_folder, destination_folder):
     """
     globpath = os.path.join(source_folder, '*.pdf')
     cachedir = os.path.join(destination_folder, '_cached_data')
+    if not os.path.isdir(destination_folder):
+        os.mkdir(destination_folder)
     if not os.path.isdir(cachedir):
         os.mkdir(cachedir)
     Reports_dict = GenerateReports(globpath=globpath,
