@@ -23,7 +23,7 @@ def final_clean(Reports_dict, folder, cachedir, print_outlier_threshold=6):
     timevars = ['YEAR', 'QUARTER']
 
     list_of_reports = [key for key, val in Reports_dict.items()
-                       if val.shape[0] != (0, 0)]
+                       if val.shape != (0, 0)]
 
     for reportno in list_of_reports:
         rpt = (Reports_dict[reportno]
@@ -69,7 +69,8 @@ def final_clean(Reports_dict, folder, cachedir, print_outlier_threshold=6):
           'PENTOBARBITAL (SCHEDULE 2) in 2017, which is missing '
           'about 10 percent of the state count')
 
-    print(checks[(1, 2)].query('GRAMS_x_GRAMS_y_ratio_check==False'))
+    if (1, 2) in checks:
+        print(checks[(1, 2)].query('GRAMS_x_GRAMS_y_ratio_check==False'))
 
     report_final_dict = generate_outlier_indicators(
         report_final_dict, timevars, print_outlier_threshold)
@@ -77,11 +78,13 @@ def final_clean(Reports_dict, folder, cachedir, print_outlier_threshold=6):
 
     pickle_dump(report_final_dict,
                 os.path.join(cachedir, 'report_final_dict.pkl'))
+
     {rpt.to_stata(os.path.join(folder, 'Report%s.dta' % reportno),
                   convert_dates={'QUARTER': 'tq' for x in rpt.columns
                                  if x == 'QUARTER'},
                   write_index=False)
      for reportno, rpt in report_final_dict.items()}
+
     return report_final_dict
 
 
@@ -177,51 +180,60 @@ def run_consistency_checks(report_final_dict, check=[1, 2, 3, 5, 7]):
     if isinstance(check, str):
         check = [int(check)]
     checks = {}
-    if 1 in check or 2 in check:
+    if ((1 in check or 2 in check)
+            and set(['1', '2']).issubset(report_final_dict)):
         print('\n--- checking 1 against 2 ---')
         checks[(1, 2)] = consistency_check(report_final_dict['1'],
                                            report_final_dict['2'],
                                            grams_name_dict)
-    if 1 in check or 3 in check:
+    if ((1 in check or 3 in check)
+            and set(['1', '3', '4']).issubset(report_final_dict)):
         print('\n--- checking 1 against 3, using 4 ---')
         checks[(1, 3, 4)] = consistency_check(report_final_dict['1'],
                                               report_final_dict['3'],
                                               grams_name_dict,
                                               report_final_dict['4'])
-    if 1 in check or 5 in check:
+    if ((1 in check or 5 in check)
+            and set(['1', '5']).issubset(report_final_dict)):
         print('\n--- checking 1 against 5 ---')
         checks[(1, 5)] = consistency_check(report_final_dict['1'],
                                            report_final_dict['5'],
                                            grams_name_dict)
-    if 2 in check or 3 in check:
+    if ((2 in check or 3 in check)
+            and set(['2', '3', '4']).issubset(report_final_dict)):
         print('\n--- checking 2 against 3, using 4 ---')
         checks[(2, 3, 4)] = consistency_check(report_final_dict['2'],
                                               report_final_dict['3'],
                                               grams_name_dict,
                                               report_final_dict['4'])
-    if 2 in check or 5 in check:
+    if ((2 in check or 5 in check)
+            and set(['2', '5']).issubset(report_final_dict)):
         print('\n--- checking 2 against 5 ---')
         checks[(2, 5)] = consistency_check(report_final_dict['2'],
                                            report_final_dict['5'],
                                            grams_name_dict)
-    if 2 in check or 7 in check:
+    if ((2 in check or 7 in check)
+            and set(['2', '7']).issubset(report_final_dict)):
         print('\n--- checking 2 against 7 ---')
         checks[(2, 7)] = consistency_check(report_final_dict['2'],
                                            report_final_dict['7'],
                                            grams_name_dict)
-    if 3 in check or 5 in check:
+    if ((3 in check or 5 in check)
+            and set(['3', '5', '4']).issubset(report_final_dict)):
         print('\n--- checking 3 against 5, using 4 ---')
         checks[(3, 5)] = consistency_check(report_final_dict['3'],
                                            report_final_dict['5'],
                                            grams_name_dict,
                                            report_final_dict['4'])
-    if 3 in check or 7 in check:
+    if ((3 in check or 7 in check)
+            and set(['3', '7', '4']).issubset(report_final_dict)):
         print('\n--- checking 3 against 7, using 4 ---')
         checks[(3, 7)] = consistency_check(report_final_dict['3'],
                                            report_final_dict['7'],
                                            grams_name_dict,
                                            report_final_dict['4'])
-    if 5 in check or 7 in check:
+    if ((5 in check or 7 in check)
+            and set(['5', '7']).issubset(report_final_dict)):
         print('\n--- checking 5 against 7 ---')
         checks[(5, 7)] = consistency_check(report_final_dict['5'],
                                            report_final_dict['7'],
@@ -498,18 +510,20 @@ def clean_zips(report_final_dict):
 
 
 def clean_business_activities(report_final_dict):
-    report_final_dict['5'] = report_final_dict['5'].assign(
-        BUSINESS_ACTIVITY=np.where(
-            report_final_dict['5'].BUSINESS_ACTIVITY.str.endswith(
-                'NARCOTIC TREATMENT PROGRAMS'),
-            'N-U NARCOTIC TREATMENT PROGRAMS',
-            report_final_dict['5'].BUSINESS_ACTIVITY))
-    report_final_dict['7'] = report_final_dict['7'].assign(
-        BUSINESS_ACTIVITY=np.where(
-            report_final_dict['7'].BUSINESS_ACTIVITY.str.endswith(
-                'NARCOTIC TREATMENT PROGRAMS'),
-            'N-U NARCOTIC TREATMENT PROGRAMS',
-            report_final_dict['7'].BUSINESS_ACTIVITY))
+    if '5' in report_final_dict:
+        report_final_dict['5'] = report_final_dict['5'].assign(
+            BUSINESS_ACTIVITY=np.where(
+                report_final_dict['5'].BUSINESS_ACTIVITY.str.endswith(
+                    'NARCOTIC TREATMENT PROGRAMS'),
+                'N-U NARCOTIC TREATMENT PROGRAMS',
+                report_final_dict['5'].BUSINESS_ACTIVITY))
+    if '7' in report_final_dict:
+        report_final_dict['7'] = report_final_dict['7'].assign(
+            BUSINESS_ACTIVITY=np.where(
+                report_final_dict['7'].BUSINESS_ACTIVITY.str.endswith(
+                    'NARCOTIC TREATMENT PROGRAMS'),
+                'N-U NARCOTIC TREATMENT PROGRAMS',
+                report_final_dict['7'].BUSINESS_ACTIVITY))
     return report_final_dict
 
 # druglist = ['METHADONE', 'HYDROMORPHONE', 'BUPRENORPHINE', 'FENTANYL BASE', 'HYDROCODONE', 'OXYCODONE', 'MORPHINE', 'MEPERIDINE (PETHIDINE)', 'OXYMORPHONE', 'CODEINE']
