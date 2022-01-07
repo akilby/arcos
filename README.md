@@ -3,7 +3,7 @@ Code to process the DEA's publicly-available [ARCOS Retail Drug Summary Reports]
 
 ARCOS reports contain a census of all major controlled substances distributed in the United States every year, and are useful to researchers, but the data is housed in 1,000+ page PDF files with messy encoding that makes the data difficult to extract.
 
-*2022-01-06: Package is updated and current as of the 2020 ARCOS report; the 2021-half year report is not included in the update.*
+*2022-01-06: Package is updated and current as of the 2021-half year report.*
 
 ## How to Install ##
 
