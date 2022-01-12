@@ -1,31 +1,34 @@
 import os
+import urllib.request
+from urllib.parse import urldefrag, urljoin
+
 import requests
 from bs4 import BeautifulSoup
-from urllib.parse import urljoin, urldefrag
-
 
 crawl_ext_blacklist = ['.pdf']
 
 
-def url_link_tree(url, depth=2):
+def url_link_tree(url, html_only=False, depth=2):
     urllist = [url]
     for n in range(depth):
-        urllist = list(set(urllist + find_all_child_links(urllist)))
+        urllist = list(set(urllist + find_all_child_links(urllist, html_only)))
     return urllist
 
 
-def find_all_child_links(urllist):
+def find_all_child_links(urllist, html_only=False):
     child_links = []
     for url in urllist:
-        new_child_links = find_child_links(url)
+        new_child_links = find_child_links(url, html_only)
         if new_child_links:
             child_links = child_links + new_child_links
     return list(set(child_links))
 
 
-def find_child_links(baseurl):
+def find_child_links(baseurl, html_only=False):
     page_links = return_page_links(baseurl)
     child_links = [x for x in page_links if is_child(x, baseurl)]
+    if html_only:
+        child_links = [x for x in child_links if is_html(x)]
     return child_links
 
 
@@ -48,3 +51,18 @@ def is_child(url, baseurl):
 def is_valid_ext(url):
     ext = os.path.splitext(url)[1]
     return ext not in crawl_ext_blacklist
+
+
+def content_type(url):
+    response = urllib.request.urlopen(url)
+    return (dict(response.headers)['Content-Type']
+            if 'Content-Type' in dict(response.headers)
+            else None)
+
+
+def is_html(url):
+    c = content_type(url)
+    if c:
+        return True if c.startswith('text/html') else False
+    else:
+        return False
